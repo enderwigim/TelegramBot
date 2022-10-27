@@ -7,13 +7,14 @@ from telegram import Bot
 import os
 
 TOKEN = os.environ.get("TOKEN")
+URL = os.environ.get("URL")
 
 app = Flask(__name__)
 
 stock_view = StockView()
 bot = Bot(token=TOKEN)
 # URL = "https://de5b-139-47-18-90.eu.ngrok.io"
-URL = "https://santi-bot.herokuapp.com/"
+
 
 
 def tel_parse_message(message):
