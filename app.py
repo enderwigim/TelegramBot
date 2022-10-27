@@ -13,7 +13,7 @@ app = Flask(__name__)
 stock_view = StockView()
 bot = Bot(token=TOKEN)
 # URL = "https://de5b-139-47-18-90.eu.ngrok.io"
-URL = "https://git.heroku.com/santi-bot.git"
+URL = "https://santi-bot.herokuapp.com/"
 
 
 def tel_parse_message(message):
