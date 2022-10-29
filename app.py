@@ -3,7 +3,9 @@ from flask import request
 from flask import Response
 import requests
 from stockview import StockView
-from telegram import Bot
+import telegram
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
+                          ConversationHandler)
 import os
 
 TOKEN = os.environ.get("TOKEN")
@@ -11,17 +13,16 @@ URL = os.environ.get("URL")
 
 app = Flask(__name__)
 
-stock_view = StockView()
-bot = Bot(token=TOKEN)
-# URL = "https://de5b-139-47-18-90.eu.ngrok.io"
 
+bot = telegram.Bot(token=TOKEN)
+URL = "https://70c9-139-47-18-90.eu.ngrok.io"
 
 
 def tel_parse_message(message):
     print("message-->", message)
     try:
-        chat_id = message['message']['chat']['id']
-        txt = message['message']['text']
+        chat_id = message.message.chat_id
+        txt = message.message.text
         print("chat_id-->", chat_id)
         print("txt-->", txt)
 
@@ -30,44 +31,34 @@ def tel_parse_message(message):
         print("NO text found-->>")
 
 
-def tel_send_message(chat_id, text):
-    url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
-    payload = {
-        'chat_id': chat_id,
-        'text': text
-    }
-
-    r = requests.post(url, json=payload)
-
-    return r
-
-
-def tel_send_image(chat_id):
-    url = f'https://api.telegram.org/bot{TOKEN}/sendPhoto'
-    payload = {
-        'chat_id': chat_id,
-        'photo': "https://raw.githubusercontent.com/fbsamples/original-coast-clothing/main/public/styles/male-work.jpg",
-        'caption': "This is a sample image"
-    }
-
-    r = requests.post(url, json=payload)
-    return r
+# DEPRECATED BY NOW
+# def tel_send_message(chat_id, text):
+#     url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
+#     payload = {
+#         'chat_id': chat_id,
+#         'text': text
+#     }
+#
+#     r = requests.post(url, json=payload)
+#
+#     return r
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        msg = request.get_json()
+        # retrieve the message in JSON and then transform it to Telegram object
+        update = telegram.Update.de_json(request.get_json(force=True), bot)
         try:
-            chat_id, txt = tel_parse_message(msg)
-            if txt == "stock":
+            chat_id, txt = tel_parse_message(update)
+            if txt == "/stock":
+                update.message.reply_text('Choose an enterprise')
+                stock_view = StockView("2")
                 for message in stock_view.get_percentage():
-                    tel_send_message(chat_id, message)
-            elif txt == "image":
-                tel_send_image(chat_id)
+                    bot.send_message(chat_id=chat_id, text=message)
 
             else:
-                tel_send_message(chat_id, 'from webhook')
+                bot.send_message(chat_id=chat_id, text="from the webhook")
         except:
             print("from index-->")
 

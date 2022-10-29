@@ -1,14 +1,14 @@
 import requests
 from stock import Stock_Machine
 from news import NewsRelated
+from enterprises import enterprises_dic
+
 
 class StockView:
-    def __init__(self):
-        self.STOCK = "TSLA"
-        self.COMPANY_NAME = "Tesla"
+    def __init__(self, num):
+        self.STOCK = enterprises_dic[num]["stock"]
+        self.COMPANY_NAME = enterprises_dic[num]["name"]
 
-
-        #self.my_telegram = TelegramMessage()
         self.my_stock = Stock_Machine(self.STOCK)
         self.my_news = NewsRelated(self.COMPANY_NAME, day1=self.my_stock.day_list[1], day2=self.my_stock.day_list[0])
 
@@ -59,6 +59,7 @@ class StockView:
             messages += [f"Headline: {self.my_news.final_data[0]['title']}\n{self.my_news.final_data[0]['url']}\n"]
             messages += [f"Headline: {self.my_news.final_data[1]['title']}\n{self.my_news.final_data[1]['url']}\n"]
             messages += [f"Headline: {self.my_news.final_data[2]['title']}\n{self.my_news.final_data[2]['url']}\n"]
-            return messages
+
         else:
             messages += [f"{self.COMPANY_NAME} hasn't seen more than 1% of changes."]
+        return messages
